@@ -31,6 +31,28 @@ async def png_to_jpg(png_file: UploadFile = File(...)):
     # Create a StreamingResponse with the buffer and headers for download
     return StreamingResponse(buf, media_type="image/jpeg", headers=headers)
 
+@app.post("/convert/webp_to_png/")
+async def webp_to_png(webp_file: UploadFile = File(...)):
+    # Check if the uploaded file is a WebP file
+    if not webp_file.filename.lower().endswith('.webp'):
+        return {"error": "Please upload a WebP file."}
+    
+    # Read the image file
+    image_data = await webp_file.read()
+    image = Image.open(io.BytesIO(image_data))
+    
+    # Convert the image to PNG by saving it to a bytes buffer
+    buf = io.BytesIO()
+    image.save(buf, format='PNG')
+    buf.seek(0)
+    
+    # Prepare the headers for file download
+    headers = {
+        'Content-Disposition': 'attachment; filename="converted_image.png"'
+    }
+    
+    # Create a StreamingResponse with the buffer and headers for download
+    return StreamingResponse(buf, media_type="image/png", headers=headers)
 
 @app.post("/convert/jpg_to_png/")
 async def jpg_to_png(jpg_file: UploadFile = File(...)):
